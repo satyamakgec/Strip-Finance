@@ -188,6 +188,10 @@ contract Vesting is Ownable {
         }));
     }
 
+    /**
+     * @dev Allow owner to set the token address that get vested.
+     * @param tokenAddress Address of the BEP-20 token.
+     */
     function setToken(address tokenAddress) external onlyOwner {
         require(tokenAddress != address(0), "Vesting: ZERO_ADDRESS_NOT_ALLOWED");
         require(vestingToken == address(0), "Vesting: ALREADY_SET");
@@ -196,12 +200,21 @@ contract Vesting is Ownable {
         emit TokenSet(tokenAddress);
     }
 
+    /**
+     * @dev Allow owner to skim the token from the contract.
+     * @param tokenAddress Address of the BEP-20 token.
+     * @param amount       Amount of token that get skimmed out of the contract.
+     * @param destination  Whom token amount get transferred to.
+     */
     function skim(address tokenAddress, uint256 amount, address destination) external onlyOwner {
         require(block.timestamp > VESTING_END_AT, "Vesting: NOT_ALLOWED");
         require(destination != address(0),        "Vesting: ZERO_ADDRESS_NOT_ALLOWED");
         SafeERC20.safeTransfer(IERC20(tokenAddress), destination, amount);
     }
 
+    /**
+     * @dev Allow the respective addresses pull the vested tokens.
+     */
     function pull() external {
         Schedule[] memory _schedules = schedules[msg.sender];
         require(_schedules.length != uint256(0), "Vesting: NOT_AUTORIZE");
@@ -217,14 +230,14 @@ contract Vesting is Ownable {
                 if (_schedules[i].cliff != uint256(0) && _schedules[i].startTime + _schedules[i].cliff <= block.timestamp) {
                     vestedAmount = _schedules[i].cliffAllocation * _schedules[i].allocation / 10_000;
                 }
-                else if (block.timestamp > _schedules[i].startTime + _schedules[i].cliff) {
+                if (block.timestamp > _schedules[i].startTime + _schedules[i].cliff) {
                     uint256 timeDelta            = block.timestamp - _schedules[i].startTime - _schedules[i].cliff;
                     uint256 noOfPeriods          = timeDelta / _schedules[i].frequency;
                     uint256 unitPeriodAllocation = _schedules[i].allocationAtFrequency * _schedules[i].allocation / 10_000;
                     vestedAmount += unitPeriodAllocation * noOfPeriods;
                 } 
             }
-            amount += _schedules[i].claimedTokens - vestedAmount;
+            amount += vestedAmount - _schedules[i].claimedTokens;
         }
         if (amount > uint256(0)) {
             SafeERC20.safeTransfer(IERC20(vestingToken), msg.sender, amount);
