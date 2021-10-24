@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity 0.8.7;
 
 import { Ownable } from "openzeppelin-solidity/contracts/access/Ownable.sol";
 import { IBEP20 }  from "./interface/IBEP20.sol";
@@ -17,16 +17,13 @@ contract StripFinanceToken is IBEP20, Ownable {
   bytes32 public constant PERMIT_TYPEHASH = 0xfc77c2b9d30fe91687fd39abb7d16fcdfe1472d065740051ab8b13e4bf4a617f;
 
   uint256 private _totalSupply;
-  uint8 private _decimals;
+  uint8   private _decimals;
+
   string private _symbol;
   string private _name;
 
-  constructor() {
-    _name = "Strip Finance";
-    _symbol = "STRIP";
-    _decimals = 18;
-    _totalSupply = 50_000_000; // 50 Million
-    _balances[msg.sender] = _totalSupply;
+  constructor(address _vestingContract) {
+    require(_vestingContract != address(0), "SFT:ZERO_ADDRESS");
 
     uint256 chainId;
     assembly {
@@ -41,49 +38,59 @@ contract StripFinanceToken is IBEP20, Ownable {
             address(this)
         )
     );
+    
+    _name     = "Strip Finance";
+    _symbol   = "STRIP";
+    _decimals = 18;
 
-    emit Transfer(address(0), msg.sender, _totalSupply);
+    _mintTokens(_vestingContract, 50_000_000 * 10 ** 18);
+  }
+
+  function _mintTokens(address _to, uint256 _amount) internal {
+    _balances[_to] = _amount;
+    _totalSupply  += _amount;         // Should be 50 Million
+    emit Transfer(address(0), _to, _amount);
   }
 
   /**
    * @dev Returns the bep token owner.
    */
-  function getOwner() external view returns (address) {
+  function getOwner() external override view returns (address) {
     return owner();
   }
 
   /**
    * @dev Returns the token decimals.
    */
-  function decimals() external view returns (uint8) {
+  function decimals() external override view returns (uint8) {
     return _decimals;
   }
 
   /**
    * @dev Returns the token symbol.
    */
-  function symbol() external view returns (string memory) {
+  function symbol() external override view returns (string memory) {
     return _symbol;
   }
 
   /**
   * @dev Returns the token name.
   */
-  function name() external view returns (string memory) {
+  function name() external override view returns (string memory) {
     return _name;
   }
 
   /**
    * @dev See {BEP20-totalSupply}.
    */
-  function totalSupply() external view returns (uint256) {
+  function totalSupply() external override view returns (uint256) {
     return _totalSupply;
   }
 
   /**
    * @dev See {BEP20-balanceOf}.
    */
-  function balanceOf(address account) external view returns (uint256) {
+  function balanceOf(address account) external override view returns (uint256) {
     return _balances[account];
   }
 
@@ -95,7 +102,7 @@ contract StripFinanceToken is IBEP20, Ownable {
    * - `recipient` cannot be the zero address.
    * - the caller must have a balance of at least `amount`.
    */
-  function transfer(address recipient, uint256 amount) external returns (bool) {
+  function transfer(address recipient, uint256 amount) external override returns (bool) {
     _transfer(_msgSender(), recipient, amount);
     return true;
   }
@@ -103,7 +110,7 @@ contract StripFinanceToken is IBEP20, Ownable {
   /**
    * @dev See {BEP20-allowance}.
    */
-  function allowance(address owner, address spender) external view returns (uint256) {
+  function allowance(address owner, address spender) external override view returns (uint256) {
     return _allowances[owner][spender];
   }
 
@@ -114,7 +121,7 @@ contract StripFinanceToken is IBEP20, Ownable {
    *
    * - `spender` cannot be the zero address.
    */
-  function approve(address spender, uint256 amount) external returns (bool) {
+  function approve(address spender, uint256 amount) external override returns (bool) {
     _approve(_msgSender(), spender, amount);
     return true;
   }
@@ -131,7 +138,7 @@ contract StripFinanceToken is IBEP20, Ownable {
    * - the caller must have allowance for `sender`'s tokens of at least
    * `amount`.
    */
-  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
+  function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
     _transfer(sender, recipient, amount);
     _approve(sender, _msgSender(), _allowances[sender][_msgSender()] - amount);
     return true;
