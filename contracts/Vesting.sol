@@ -221,7 +221,7 @@ contract Vesting is Ownable {
         uint256 amount = 0;
         for (uint8 i = 0; i < _schedules.length; i++) {
             uint256 vestedAmount = 0;
-            if (_schedules[i].startTime > block.timestamp) {
+            if (_schedules[i].startTime > block.timestamp || _schedules[i].claimedTokens == _schedules[i].allocation) {
                 continue;
             }
             if (_schedules[i].startTime + _schedules[i].duration <= block.timestamp) {
@@ -237,12 +237,13 @@ contract Vesting is Ownable {
                     vestedAmount += unitPeriodAllocation * noOfPeriods;
                 } 
             }
-            amount += vestedAmount - _schedules[i].claimedTokens;
+            uint256 claimAmountPerSchedule = vestedAmount - _schedules[i].claimedTokens;
+            schedules[msg.sender][i].claimedTokens += claimAmountPerSchedule;
+            amount += claimAmountPerSchedule;
         }
-        if (amount > uint256(0)) {
-            SafeERC20.safeTransfer(IERC20(vestingToken), msg.sender, amount);
-            emit Pulled(msg.sender, amount);
-        }
+        require(amount > uint256(0), "Vesting: NO_VESTED_TOKENS");
+        SafeERC20.safeTransfer(IERC20(vestingToken), msg.sender, amount);
+        emit Pulled(msg.sender, amount);
     }
 
     function _createSchedule(address _beneficiary, Schedule memory _schedule) internal {
