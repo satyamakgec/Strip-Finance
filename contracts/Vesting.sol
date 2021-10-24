@@ -3,7 +3,7 @@ pragma solidity 0.8.7;
 
 import { Ownable }           from "openzeppelin-solidity/contracts/access/Ownable.sol";
 import { SafeERC20, IERC20 } from "openzeppelin-solidity/contracts/token/ERC20/utils/SafeERC20.sol";
-import { IBEP20 }  from "./interface/IBEP20.sol";
+import { IBEP20 }            from "./interface/IBEP20.sol";
 
 contract Vesting is Ownable {
 
@@ -31,7 +31,7 @@ contract Vesting is Ownable {
     address public vestingToken;   // BEP20 token that get vested.
 
     event TokenSet(address vestingToken);
-    event Pulled(address beneficiary, uint256 amount);
+    event Pulled(address indexed beneficiary, uint256 amount);
 
     struct Schedule {
         // Name of the template
@@ -61,7 +61,7 @@ contract Vesting is Ownable {
         _createSchedule(SEED, Schedule({
             templateName         :  bytes32("Seed"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
+            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
             allocation           :  SEED_ALLOCATION,
             duration             :  25920000,     // 10 Months (10 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (1 * 30 * 24 * 60 * 60)
@@ -74,11 +74,11 @@ contract Vesting is Ownable {
         _createSchedule(PRIVATE, Schedule({
             templateName         :  bytes32("Private"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
+            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
             allocation           :  PRIVATE_ALLOCATION,
             duration             :  23328000,     // 9 Months (9 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month  (1 * 30 * 24 * 60 * 60)
-            cliff                :  2592000,      // 1 Month cliff to make a TGE amount.
+            cliff                :  2592000,      // 1 Month cliff.
             allocationAtFrequency:  1000,         // 10 %
             cliffAllocation      :  2000          // 20 %
         }));
@@ -87,7 +87,7 @@ contract Vesting is Ownable {
         _createSchedule(PUBLIC, Schedule({
             templateName         :  bytes32("Public"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
+            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
             allocation           :  PUBLIC_ALLOCATION,
             duration             :  10368000,     // 4 Months (4 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month  (1 * 30 * 24 * 60 * 60)
@@ -100,9 +100,9 @@ contract Vesting is Ownable {
         _createSchedule(TEAM, Schedule({
             templateName         :  bytes32("Team"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
+            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
             allocation           :  TEAM_ALLOCATION,
-            duration             :  46656000,     // 18 Months (18 * 30 * 24 * 60 * 60)
+            duration             :  54432000,     // 21 Months (21 * 30 * 24 * 60 * 60)
             frequency            :  7776000,      // 3 Month   (1 * 30 * 24 * 60 * 60)
             cliff                :  31104000,     // 12 Month cliff.
             allocationAtFrequency:  2500,         // 25 % 
@@ -139,7 +139,7 @@ contract Vesting is Ownable {
         _createSchedule(COMMUNITY, Schedule({
             templateName         :  bytes32("Community_3"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
+            startTime            :  1693420200,   // Wed Aug 31 2023 00:00:00 GMT+0530
             allocation           :  40 * COMMUNITY_ALLOCATION / 100,   // 40 % of the total community allocation.
             duration             :  31104000,     // 12 Months (12 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (01 * 30 * 24 * 60 * 60)
@@ -152,12 +152,12 @@ contract Vesting is Ownable {
         _createSchedule(LQ_POOL, Schedule({
             templateName         :  bytes32("Liquidity_pool_1"),
             claimedTokens        :  uint256(0),
-            startTime            :  1632940200,   // Sep 30 2021 00:00:00 GMT+0530
-            allocation           :  LIQUIDITY_POOL_ALLOCATION,
+            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            allocation           :  10 * LIQUIDITY_POOL_ALLOCATION / 100, // 10 % of the total liquidity pool allocation.
             duration             :  5184000,      // 2 Months (2 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month  (1 * 30 * 24 * 60 * 60)
             cliff                :  uint256(0),
-            allocationAtFrequency:  500,          // 5 % 
+            allocationAtFrequency:  5000,         // 50 % 
             cliffAllocation      :  uint256(0)
         }));
 
@@ -165,12 +165,12 @@ contract Vesting is Ownable {
         _createSchedule(LQ_POOL, Schedule({
             templateName         :  bytes32("Liquidity_pool_2"),
             claimedTokens        :  uint256(0),
-            startTime            :  1638124200,   // Nov 29 2021 00:00:00 GMT+0530
-            allocation           :  LIQUIDITY_POOL_ALLOCATION,
+            startTime            :  1635618600,   // Sun Oct 31 2021 00:00:00 GMT+0530
+            allocation           :  90 * LIQUIDITY_POOL_ALLOCATION / 100,
             duration             :  116640000,    // 45 Months (45 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (1 * 30 * 24 * 60 * 60)
             cliff                :  uint256(0),
-            allocationAtFrequency:  2,            // 2 % 
+            allocationAtFrequency:  222,          // 2.22 % 
             cliffAllocation      :  uint256(0)
         }));
 
@@ -215,12 +215,14 @@ contract Vesting is Ownable {
                 vestedAmount = _schedules[i].allocation;
             } else {
                 if (_schedules[i].cliff != uint256(0) && _schedules[i].startTime + _schedules[i].cliff <= block.timestamp) {
-                    vestedAmount = _schedules[i].cliffAllocation * _schedules[i].allocation;
+                    vestedAmount = _schedules[i].cliffAllocation * _schedules[i].allocation / 10_000;
+                }
+                else if (block.timestamp > _schedules[i].startTime + _schedules[i].cliff) {
+                    uint256 timeDelta            = block.timestamp - _schedules[i].startTime - _schedules[i].cliff;
+                    uint256 noOfPeriods          = timeDelta / _schedules[i].frequency;
+                    uint256 unitPeriodAllocation = _schedules[i].allocationAtFrequency * _schedules[i].allocation / 10_000;
+                    vestedAmount += unitPeriodAllocation * noOfPeriods;
                 } 
-                uint256 timeDelta            = block.timestamp - _schedules[i].startTime;
-                uint256 noOfPeriods          = timeDelta / _schedules[i].frequency;
-                uint256 unitPeriodAllocation = _schedules[i].allocationAtFrequency * _schedules[i].allocation;
-                vestedAmount += unitPeriodAllocation * noOfPeriods;
             }
             amount += _schedules[i].claimedTokens - vestedAmount;
         }
