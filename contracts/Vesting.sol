@@ -61,24 +61,24 @@ contract Vesting is Ownable {
         _createSchedule(SEED, Schedule({
             templateName         :  bytes32("Seed"),
             claimedTokens        :  uint256(0),
-            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp,  // TGE
             allocation           :  SEED_ALLOCATION,
-            duration             :  25920000,     // 10 Months (10 * 30 * 24 * 60 * 60)
+            duration             :  23328000,     // 9 Months (9 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (1 * 30 * 24 * 60 * 60)
-            cliff                :  uint256(0),
+            cliff                :  uint256(1),   // Release after 1 second
             allocationAtFrequency:  1000,         // 10 %
-            cliffAllocation      :  uint256(0)
+            cliffAllocation      :  1000
         }));
 
         // For Private allocation
         _createSchedule(PRIVATE, Schedule({
             templateName         :  bytes32("Private"),
             claimedTokens        :  uint256(0),
-            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp,   // TGE
             allocation           :  PRIVATE_ALLOCATION,
-            duration             :  23328000,     // 9 Months (9 * 30 * 24 * 60 * 60)
+            duration             :  20736000,     // 8 Months (8 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month  (1 * 30 * 24 * 60 * 60)
-            cliff                :  2592000,      // 1 Month cliff.
+            cliff                :  uint256(1),   // 1 second cliff.
             allocationAtFrequency:  1000,         // 10 %
             cliffAllocation      :  2000          // 20 %
         }));
@@ -87,20 +87,20 @@ contract Vesting is Ownable {
         _createSchedule(PUBLIC, Schedule({
             templateName         :  bytes32("Public"),
             claimedTokens        :  uint256(0),
-            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp,   // TGE
             allocation           :  PUBLIC_ALLOCATION,
-            duration             :  10368000,     // 4 Months (4 * 30 * 24 * 60 * 60)
+            duration             :  7776000,      // 3 Months (3 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month  (1 * 30 * 24 * 60 * 60)
-            cliff                :  uint256(0),   
-            allocationAtFrequency:  2500,         // 10 %
-            cliffAllocation      :  uint256(0)
+            cliff                :  uint256(1),   // 1 second cliff (Going to release after the 1 second of the deployment).
+            allocationAtFrequency:  2500,         // 25 %
+            cliffAllocation      :  2500          // 25 %
         }));
 
         // For Team allocation
         _createSchedule(TEAM, Schedule({
             templateName         :  bytes32("Team"),
             claimedTokens        :  uint256(0),
-            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp,   // TGE
             allocation           :  TEAM_ALLOCATION,
             duration             :  54432000,     // 21 Months (21 * 30 * 24 * 60 * 60)
             frequency            :  7776000,      // 3 Month   (1 * 30 * 24 * 60 * 60)
@@ -113,21 +113,21 @@ contract Vesting is Ownable {
         _createSchedule(COMMUNITY, Schedule({
             templateName         :  bytes32("Community_1"),
             claimedTokens        :  uint256(0),
-            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp,   // TGE
             allocation           :  24 * COMMUNITY_ALLOCATION / 100,   // 24 % of the total community allocation.
-            duration             :  31104000,     // 12 Months (12 * 30 * 24 * 60 * 60)
+            duration             :  28512000,     // 11 Months (11 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (01 * 30 * 24 * 60 * 60)
-            cliff                :  uint256(0),
+            cliff                :  uint256(1),   // 1 second cliff (Going to release after the 1 second of the deployment).
             allocationAtFrequency:  833,          // 8.33 % Rest of the dust will send back to the user at the end of the schedule. 
-            cliffAllocation      :  uint256(0)
+            cliffAllocation      :  833
         }));
 
         // For Community allocation -- 2
         _createSchedule(COMMUNITY, Schedule({
             templateName         :  bytes32("Community_2"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
-            allocation           :  36 * COMMUNITY_ALLOCATION / 100,   // 36 % of the total community allocation.
+            startTime            :  block.timestamp + 28512000 + 1,   // After the completion of the first community schedule
+            allocation           :  36 * COMMUNITY_ALLOCATION / 100,  // 36 % of the total community allocation.
             duration             :  31104000,     // 12 Months (12 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (01 * 30 * 24 * 60 * 60)
             cliff                :  uint256(0),
@@ -139,7 +139,7 @@ contract Vesting is Ownable {
         _createSchedule(COMMUNITY, Schedule({
             templateName         :  bytes32("Community_3"),
             claimedTokens        :  uint256(0),
-            startTime            :  1693420200,   // Wed Aug 31 2023 00:00:00 GMT+0530
+            startTime            :  block.timestamp + 28512000 + 31104000 + 1,  // After the completion of the community schedule 1 & 2
             allocation           :  40 * COMMUNITY_ALLOCATION / 100,   // 40 % of the total community allocation.
             duration             :  31104000,     // 12 Months (12 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (01 * 30 * 24 * 60 * 60)
@@ -152,20 +152,20 @@ contract Vesting is Ownable {
         _createSchedule(LQ_POOL, Schedule({
             templateName         :  bytes32("Liquidity_pool_1"),
             claimedTokens        :  uint256(0),
-            startTime            :  1630348200,   // Tue Aug 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp,   // TGE
             allocation           :  10 * LIQUIDITY_POOL_ALLOCATION / 100, // 10 % of the total liquidity pool allocation.
-            duration             :  5184000,      // 2 Months (2 * 30 * 24 * 60 * 60)
+            duration             :  2592000,      // 1 Months (1 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month  (1 * 30 * 24 * 60 * 60)
-            cliff                :  uint256(0),
+            cliff                :  uint256(1),
             allocationAtFrequency:  5000,         // 50 % 
-            cliffAllocation      :  uint256(0)
+            cliffAllocation      :  5000
         }));
 
         // For Liquidity Pool allocation  -- 2
         _createSchedule(LQ_POOL, Schedule({
             templateName         :  bytes32("Liquidity_pool_2"),
             claimedTokens        :  uint256(0),
-            startTime            :  1635618600,   // Sun Oct 31 2021 00:00:00 GMT+0530
+            startTime            :  block.timestamp + 2592000,   // After the completion of the first pool schedule.
             allocation           :  90 * LIQUIDITY_POOL_ALLOCATION / 100,
             duration             :  116640000,    // 45 Months (45 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (1 * 30 * 24 * 60 * 60)
@@ -178,7 +178,7 @@ contract Vesting is Ownable {
         _createSchedule(TREASURY, Schedule({
             templateName         :  bytes32("Treasury"),
             claimedTokens        :  uint256(0),
-            startTime            :  1661884200,   // Wed Aug 31 2022 00:00:00 GMT+0530
+            startTime            :  block.timestamp,   // TGE
             allocation           :  TREASURY_ALLOCATION,
             duration             :  134784000,    // 52 Months (52 * 30 * 24 * 60 * 60)
             frequency            :  2592000,      // 1 Month   (1 * 30 * 24 * 60 * 60)
